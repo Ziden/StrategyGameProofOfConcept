@@ -1,0 +1,29 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniQuest", "MiniQuest\MiniQuest.csproj", "{72A7AAD3-7414-4AD5-991D-D3B9058F911B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{37AE45DE-2B3D-4D08-8819-8D00F5D39448}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniQuestWeb", "MiniQuestWeb\MiniQuestWeb.csproj", "{3D384A04-9CFD-495C-9A2E-A2456E8DA8DE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72A7AAD3-7414-4AD5-991D-D3B9058F911B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72A7AAD3-7414-4AD5-991D-D3B9058F911B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72A7AAD3-7414-4AD5-991D-D3B9058F911B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72A7AAD3-7414-4AD5-991D-D3B9058F911B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37AE45DE-2B3D-4D08-8819-8D00F5D39448}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37AE45DE-2B3D-4D08-8819-8D00F5D39448}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37AE45DE-2B3D-4D08-8819-8D00F5D39448}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37AE45DE-2B3D-4D08-8819-8D00F5D39448}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D384A04-9CFD-495C-9A2E-A2456E8DA8DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D384A04-9CFD-495C-9A2E-A2456E8DA8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D384A04-9CFD-495C-9A2E-A2456E8DA8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D384A04-9CFD-495C-9A2E-A2456E8DA8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
