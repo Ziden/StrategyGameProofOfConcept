@@ -47,12 +47,12 @@ namespace MiniQuest
             return TileGrid.GetLength(0);
         }
 
-        public void Build(Tile t, Building building, byte owner)
+        public void Build(Player player, Building building, Tile t)
         {
+            Log.Debug($"Player {player} building {building} on tile {t}");
             t.chunk.Buildings.Add(t);
             t.Building = (byte)building;
-            t.Owner = owner;
-            var player = Players.GetPlayer(owner);
+            t.Owner = Players.GetInternalId(player);
             player.MapData.Owned.Add(t);
         }
 

@@ -4,13 +4,13 @@ namespace MiniQuest.Net.Events
 {
     public class PlayerAuthEvent : ClientEvent
     {
-        public string Token;
+        public string Userid;
 
         public override IncomingPacketType ReceivePacketId => IncomingPacketType.Token;
 
         public override IByteReadable Deserialize(GameStream stream)
         {
-            this.Token = stream.ReadString();
+            this.Userid = stream.ReadString();
             return this;
         }
 

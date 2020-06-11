@@ -5,8 +5,8 @@ namespace MiniQuest.Net
 {
     public interface IByteReadable
     {
-        public abstract IByteReadable Deserialize(GameStream stream);
+        IByteReadable Deserialize(GameStream stream);
 
-        public abstract IncomingPacketType ReceivePacketId { get; }
+        IncomingPacketType ReceivePacketId { get; }
     }
 }

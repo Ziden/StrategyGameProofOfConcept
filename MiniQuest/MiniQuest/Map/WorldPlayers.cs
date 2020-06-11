@@ -23,7 +23,11 @@ namespace MiniQuest.Map
                 return null;
             var internalId = this._internalIds[id];
             return this._players.Get(internalId);
+        }
 
+        public byte GetInternalId(Player p)
+        {
+            return _internalIds[p.Id];
         }
 
         public bool IsPlayer(Guid id)
@@ -38,6 +42,7 @@ namespace MiniQuest.Map
                 throw new Exception("Max players on this map");
             }
             var internalID = _players.Add(p);
+            p.MapData = new PlayerMapData(internalID);
             _internalIds.Add(p.Id, internalID);
             return internalID;
         }

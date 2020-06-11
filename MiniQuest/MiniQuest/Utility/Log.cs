@@ -14,7 +14,7 @@ namespace MiniQuest
             Console.WriteLine(msg);
         }
 
-        public static void Error(string msg, Exception? e = null)
+        public static void Error(string msg, Exception e = null)
         {
             Console.WriteLine(msg);
             Console.WriteLine(e?.StackTrace);

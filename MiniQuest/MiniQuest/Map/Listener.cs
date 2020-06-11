@@ -1,4 +1,5 @@
 ﻿using System;
+using MiniQuest.Generator.Populators;
 using MiniQuest.Net;
 using MiniQuest.Net.Events;
 
@@ -16,13 +17,20 @@ namespace MiniQuest.Map
 
         private void OnPlayerAuth(PlayerAuthEvent ev)
         {
-            Log.Debug("RECEIVED TOKEN " + ev.Token);
-            if(ev.Token=="debug")
+            Log.Debug("On Player Auth");
+            if(ev.Userid=="debug")
             {
-                ev.Token = Guid.NewGuid().ToString();
+                ev.Userid = Guid.NewGuid().ToString();
             }
  
-            Guid.TryParse(ev.Token, out ev.Player.Id);
+            Guid.TryParse(ev.Userid, out ev.Player.Id);
+
+            if (ev.Player.Id == null)
+            {
+                ev.Player.Disconnect("Invalid User");
+                return;
+            }
+
             var existingPlayer = map.Players.GetPlayer(ev.Player.Id);
             if(existingPlayer == null)
             {
@@ -32,13 +40,15 @@ namespace MiniQuest.Map
                     ev.Player.Disconnect("Map is Full");
                     return;
                 }
+
                 var internalId = map.Players.AddPlayer(ev.Player);
-                ev.Player.MapData = new PlayerMapData(internalId);
-                Log.Debug($"New player {ev.Player.ToString()} joining map");
+                NewbieChunkPopulator.CreateNewPlayer(ev.Player, map);
+
+                Log.Info($"New player {ev.Player.ToString()} joining map");
                 ev.Player.SendPacket(map);
             } else
             {
-                Log.Debug($"Player {ev.Player.ToString()} logged back in");
+                Log.Info($"Player {ev.Player.ToString()} logged back in");
                 ev.Player.SendPacket(map);
             }
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MiniQuest.Map;
+using System;
 namespace MiniQuest
 {
     public static class Debug
@@ -13,6 +14,8 @@ namespace MiniQuest
 
                     if (tile == null)
                         Console.Write("N");
+                    else if (tile.Building == (byte)Building.CITY_CENTRE)
+                        Console.Write("^");
                     else if (tile.HasTerrainData(TerrainData.FOREST))
                         Console.Write("|");
                     else if (tile.HasTerrainData(TerrainData.BUSHES))

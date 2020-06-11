@@ -8,7 +8,8 @@ namespace MiniQuest
         public OutgoingPacketType SendPacketId => OutgoingPacketType.ChunkMap;
 
         public Chunk[,] Map;
-        //public Dictionary<ChunkFlag, List<Chunk>> ByFlags = new Dictionary<ChunkFlag, List<Chunk>>();
+
+        public Dictionary<ChunkFlag, List<Chunk>> ByFlags = new Dictionary<ChunkFlag, List<Chunk>>();
 
         public ChunkMap(int sizeX, int sizeY)
         {
@@ -26,9 +27,9 @@ namespace MiniQuest
         {
             var chunk = this.Map[chunkX, chunkY];
             chunk.Flags = chunk.Flags |= (byte)flag;
-            //if(!ByFlags.ContainsKey(flag))
-            //    ByFlags.Add(flag, new List<Chunk>());
-            //ByFlags[flag].Add(chunk);
+            if(!ByFlags.ContainsKey(flag))
+                ByFlags.Add(flag, new List<Chunk>());
+            ByFlags[flag].Add(chunk);
         }
 
         public IEnumerable<Chunk> Iterator()

@@ -1,5 +1,7 @@
 ﻿using MiniQuest.Map;
+using MiniQuest.Net;
 using MiniQuest.SpeedMath;
+using System;
 
 namespace MiniQuest.Generator.Populators
 {
@@ -35,8 +37,23 @@ namespace MiniQuest.Generator.Populators
             AddRandomTerrain(w, c, water, TerrainData.WATER, TerrainData.MOUNTAIN, TerrainData.FOREST);
 
             // TODO: Make River
-            //var centreCoords = c.Tiles.FindTileWithout(TerrainData.WATER);
-            //w.Build(c.GetTile(centreCoords.Value), Building.CITY_CENTRE);
+        }
+
+        public static bool CreateNewPlayer(Player p, WorldMap map)
+        {
+            var startingChunks = map.ChunkGrid.ByFlags[ChunkFlag.STARTING_CHUNK];
+            foreach(var chunk in startingChunks)
+            {
+                if(chunk.Buildings.Count==0)
+                {
+                    var centreCoords = chunk.Tiles.FindTileWithout(TerrainData.WATER);
+                    var tile = chunk.GetTile(centreCoords.Value);
+                    map.Build(p, Building.CITY_CENTRE, tile);
+                    return true;
+                }
+            }
+            Log.Error($"No place found for new player {p}");
+            throw new Exception("No place found for new player");
         }
 
         public void Debug(WorldMap w, Chunk c)

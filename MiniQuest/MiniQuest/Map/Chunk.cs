@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MiniQuest.Map;
 using MiniQuest.Net;
 
 namespace MiniQuest

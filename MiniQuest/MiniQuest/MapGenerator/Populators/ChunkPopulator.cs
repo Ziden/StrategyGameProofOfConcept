@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace MiniQuest.Generator.Populators
 {
     public abstract class ChunkPopulator

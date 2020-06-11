@@ -32,6 +32,11 @@ namespace MiniQuest
             return (TerrainData & (byte)data) != 0;
         }
 
+        public override string ToString()
+        {
+            return $"<Tile x={x} y={y} owner={Owner}>";
+        }
+
         public void Serialize(GameStream writer)
         {
             writer.Write(TerrainData);
