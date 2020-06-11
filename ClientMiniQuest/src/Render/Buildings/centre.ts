@@ -16,6 +16,13 @@ var _genStump = (x:number, y:number, size: number, renderer:WorldRenderer) => {
 
 export default (x:number, y:number, renderer:WorldRenderer) => {
     console.log("CENTROOOOOO");
-    var log = _genStump(x, y, 0.5, renderer);
-    log.rotation.z = 45;
+    var log = _genStump(x-0.5, y-0.5, 0.5, renderer);
+
+    var log = _genStump(log.position.x-0.5, log.position.y, 0.5, renderer);
+    log.position.y = 0.5;
+    log.rotation.x = Math.PI/2;
+
+    var log = _genStump(x-0.5, y+0.5, 0.5, renderer);
+    var log = _genStump(x+0.5, y+0.5, 0.5, renderer);
+    var log = _genStump(x+0.5, y-0.5, 0.5, renderer);
 }

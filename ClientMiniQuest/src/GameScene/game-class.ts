@@ -33,7 +33,9 @@ export default class Game {
     }
 
     sendInitialRequest(e) {
-        this.socket.send(new AuthEvent("debug"));
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user');
+        this.socket.send(new AuthEvent(userId));
     }
 
     startWorld() {

@@ -78,7 +78,6 @@ export default class WorldRenderer {
         if(tile.hasTileData(TileData.HILL)) {
             hill(x, y, this);
         }
-
         if(tile.building==Buildings.CITY_CENTRE)
             cityCentre(x, y, this);
     }
@@ -144,16 +143,12 @@ export default class WorldRenderer {
         var base = 0;
         for (var row = 0; row < grid.h; row++) {
             for (var col = 0; col < grid.w; col++) {
-                const idxMat = this.getFloorMaterial(world, col, row);
                 this._decorate(world, col, row);
+                const idxMat = this.getFloorMaterial(world, col, row);
                 const subMesh = new SubMesh(idxMat, 0, verticesCount, base , tileIndicesLength, ground);
                 ground.subMeshes.push(subMesh);
                 base += tileIndicesLength;
             }
-        }
-        
-
- 
-        
+        } 
     }
 }
