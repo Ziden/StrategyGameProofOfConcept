@@ -4,23 +4,26 @@ using System.Threading.Tasks;
 using System.Net.WebSockets;
 using System.Net;
 using MiniQuest.Net;
-using System.Collections.Generic;
 
 namespace MiniQuest
 {      
     class SocketServer
     {
+        public bool Listening = true;
 
-        //private static PacketHandler packetHandler = new PacketHandler();
+        public async void Start()
+        {
+            var thread = new Thread(new ThreadStart(Listen));
+            thread.Start();
+        }
 
-        public async void Start(string listenerPrefix)
+        public async void Listen()
         {
             HttpListener listener = new HttpListener();
-            listener.Prefixes.Add(listenerPrefix);
+            listener.Prefixes.Add("http://+:8080/server/");
             listener.Start();
-            Console.WriteLine("Listening...");
-
-            while (true)
+            Console.WriteLine("Networking listening...");
+            while (Listening)
             {
                 HttpListenerContext listenerContext = await listener.GetContextAsync();
                 if (listenerContext.Request.IsWebSocketRequest)
@@ -64,7 +67,6 @@ namespace MiniQuest
                 {
                     WebSocketReceiveResult receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), CancellationToken.None);
                     stream.GoToBegining();
-
                     // Close Connection
                     if (receiveResult.MessageType == WebSocketMessageType.Close)
                         await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);

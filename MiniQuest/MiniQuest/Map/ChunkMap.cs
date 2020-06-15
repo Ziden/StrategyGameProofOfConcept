@@ -39,13 +39,16 @@ namespace MiniQuest
                     yield return Map[x, y];
         }
 
-        public void Serialize(GameStream writer)
+        public void WriteTo(GameStream writer, Player player, byte deltas = 0)
         {
             writer.Write((ushort)Map.GetLength(0));
             writer.Write((ushort)Map.GetLength(1));
             for (var x = 0; x < Map.GetLength(0); x++)
                 for (var y = 0; y < Map.GetLength(1); y++)
-                    Map[x, y].Serialize(writer);
+                {
+                    Map[x, y].WriteTo(writer, player);
+                }
+                
         }
     }
 }

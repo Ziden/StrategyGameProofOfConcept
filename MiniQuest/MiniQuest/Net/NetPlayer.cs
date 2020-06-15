@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MiniQuest.Map;
+using System;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -9,11 +11,9 @@ namespace MiniQuest.Net
     {
         public WebSocket Socket;
 
-        // Player Data
         public Guid Id;
 
-        // Map Data
-        public PlayerMapData MapData;
+        public MapPlayerData MapData;
 
         public Player(WebSocket ws)
         {
@@ -24,7 +24,7 @@ namespace MiniQuest.Net
         {
             var stream = new GameStream();
             stream.Write((byte)obj.SendPacketId);
-            obj.Serialize(stream);
+            obj.WriteTo(stream, this);
             ArraySegment<byte> buffer;
             stream.TryGetBuffer(out buffer);
             Socket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None);

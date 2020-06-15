@@ -2,7 +2,7 @@
 
 namespace MiniQuest.Map
 {
-    public enum Building
+    public enum BuildingID
     {
         CITY_CENTRE = 1
     }

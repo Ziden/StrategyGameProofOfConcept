@@ -14,7 +14,7 @@ namespace MiniQuest
 
                     if (tile == null)
                         Console.Write("N");
-                    else if (tile.Building == (byte)Building.CITY_CENTRE)
+                    else if (tile.Building == (byte)BuildingID.CITY_CENTRE)
                         Console.Write("^");
                     else if (tile.HasTerrainData(TerrainData.FOREST))
                         Console.Write("|");

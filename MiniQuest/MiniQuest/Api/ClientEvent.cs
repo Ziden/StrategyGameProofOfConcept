@@ -9,7 +9,7 @@ namespace MiniQuest.Api.EventBus
 
         public abstract IncomingPacketType ReceivePacketId { get; }
 
-        public abstract IByteReadable Deserialize(GameStream stream);
+        public abstract IByteReadable ReadFrom(GameStream stream);
 
         public ClientEvent(Player p)
         {

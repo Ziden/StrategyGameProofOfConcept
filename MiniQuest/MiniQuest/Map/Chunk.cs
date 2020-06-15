@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MiniQuest.Entity;
 using MiniQuest.Map;
 using MiniQuest.Net;
 
@@ -20,13 +21,18 @@ namespace MiniQuest
 
         public Tile[,] Tiles;
 
-        public List<Tile> Buildings = new List<Tile>();
+        public List<Building> Buildings = new List<Building>();
+
+        public List<Player> VisibleTo = new List<Player>();
+
+        public WorldMap World;
 
         public Chunk(WorldMap w, int x, int y)
         {
             this.X = (ushort)x;
             this.Y = (ushort)y;
             Tiles = new Tile[WorldMap.CHUNK_SIZE, WorldMap.CHUNK_SIZE];
+            this.World = w;
         }
 
         public void CopyTiles(WorldMap w, int x, int y)
@@ -57,13 +63,13 @@ namespace MiniQuest
             return $"<Chunk x={X} y={Y}>";
         }
 
-        public void Serialize(GameStream writer)
+        public void WriteTo(GameStream writer, Player player, byte deltas=0)
         {
             writer.Write(X);
             writer.Write(Y);
             for(var x = 0; x < WorldMap.CHUNK_SIZE; x++)
                 for (var y = 0; y < WorldMap.CHUNK_SIZE; y++)
-                    Tiles[x, y].Serialize(writer);
+                    Tiles[x, y].WriteTo(writer, player);
         }
     }
 }

@@ -17,3 +17,4 @@ enum Resources
     CEDAR=1,
     EUCALIPTUS=2
 }
+

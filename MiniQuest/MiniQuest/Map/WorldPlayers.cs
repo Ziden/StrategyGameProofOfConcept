@@ -42,7 +42,7 @@ namespace MiniQuest.Map
                 throw new Exception("Max players on this map");
             }
             var internalID = _players.Add(p);
-            p.MapData = new PlayerMapData(internalID);
+            p.MapData = new MapPlayerData(internalID);
             _internalIds.Add(p.Id, internalID);
             return internalID;
         }

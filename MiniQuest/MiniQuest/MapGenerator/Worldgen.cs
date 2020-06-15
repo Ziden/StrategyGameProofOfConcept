@@ -49,7 +49,7 @@ namespace MiniQuest.Generator
                         {
                             var tileX = chunkX * WorldMap.CHUNK_SIZE + x;
                             var tileY = chunkY * WorldMap.CHUNK_SIZE + y;
-                            world.TileGrid[tileX, tileY] = new Tile(chunk, x, y);
+                            world.TileGrid[tileX, tileY] = new Tile(chunk, tileX, tileY);
                         }
                     }
                     chunk.CopyTiles(world, chunkX, chunkY);

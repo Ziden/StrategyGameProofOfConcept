@@ -1,8 +1,12 @@
+import Guid from "./guid";
+
 const END_OF_BUFFER = 'End of buffer';
 
 export default class GameStream {
   private _offset = 0;
   public bytes: Uint8ClampedArray;
+  private static encoder: TextEncoder = new TextEncoder();
+  private static decoder: TextDecoder = new TextDecoder();
 
   constructor(buffer: (ArrayBuffer | ArrayLike<number>)) {
     this.bytes = new Uint8ClampedArray(buffer);
@@ -26,19 +30,31 @@ export default class GameStream {
 
   get size(): number { return this.bytes.byteLength; }
 
+  readString() {
+    var size = this.readUshort();
+    var streamBytes = new Uint8Array(size);
+    var max = size;
+    while(size--) {
+      console.log("Index "+(max-size-1));
+      streamBytes[max-size-1] = this.readByte();
+    }
+    console.log(streamBytes);
+    var str = GameStream.decoder.decode(streamBytes)
+    console.log("Read string "+str+" of "+max+" bytes");
+    return str;
+  }
+
   writeString(s:string) {
-    var stringBytes = new TextEncoder().encode(s)
+    var stringBytes = GameStream.encoder.encode(s)
     var size = stringBytes.length;
-    this.writeUnsignedInt(size)
+    this.writeUshort(size)
     for(var x = 0 ; x < size ;x++)
       this.writeByte(stringBytes[x]);
   }
 
-  writeUnsignedInt(num: number) {
-    var first = (num & 0xFF00)
-    var second = (num & 0x00FF)
-    this.writeByte(first)
-    this.writeByte(second)
+  writeUshort(num: number) {
+    this.writeByte(num & 0xFF00)
+    this.writeByte(num & 0x00FF)
   }
 
   writeByte(byte: number) {
@@ -49,12 +65,21 @@ export default class GameStream {
     return this.bytes[this._offset++];
   }
 
-  readUnsignedInt16(): number {
+  readGuid(): Guid {
+    return Guid.get([
+      this.readByte(), this.readByte(), this.readByte(), this.readByte(),
+      this.readByte(), this.readByte(), this.readByte(), this.readByte(),
+      this.readByte(), this.readByte(), this.readByte(), this.readByte(),
+      this.readByte(), this.readByte(), this.readByte(), this.readByte(),
+    ]);
+  }
+
+  readUshort(): number {
     return ((this.readByte() | this.readByte() << 8));
   }
 
   readInt16(): number {
-    const u = this.readUnsignedInt16();
+    const u = this.readUshort();
     return (u >= 0x8000 ? u - 0x10000 : u);
   }
 

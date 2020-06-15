@@ -1,4 +1,4 @@
-import { FreeCamera, Vector3, ICameraInput } from "@babylonjs/core"
+import { FreeCamera, Vector3, ICameraInput, Axis } from "@babylonjs/core"
 import GameScene from "./game"
 
 export default class CameraInput implements ICameraInput<FreeCamera> {
@@ -12,6 +12,7 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
 
     private startingPoint:Vector3
     private drag:boolean
+    private rotate:boolean
 
     constructor() {
         this._keys = [-1];
@@ -27,10 +28,16 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
         window.addEventListener("pointerdown", this.onPointerDown.bind(this), false);
         window.addEventListener("pointerup", this.onPointerUp.bind(this), false);
         window.addEventListener("pointermove", this.onPointerMove.bind(this), false);
+        window.addEventListener("wheel", this.onMouseWheel.bind(this), false);
+        
     }
 
+    onMouseWheel(event) {
+        const delta = Math.sign(event.deltaY);
+        this.camera.position.y += delta;
+    }
    
-    getGroundPosition() {
+    getCurrentGroundPoint() {
         var scene = this.camera._scene
         var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == GameScene.worldRenderer.ground; });
         if (pickinfo.hit) {
@@ -55,11 +62,14 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
     }
 
     onPointerDown(evt:MouseEvent) {
-        if (evt.button !== 0) {
-            return;
-        }
-            this.startingPoint = this.getGroundPosition();
-            console.log("Set Starting Point");
+        if(evt.button==0) {
+            this.startingPoint = this.getCurrentGroundPoint();
+            this.rotate = false;
+        } else if(evt.button == 2) {
+            this.startingPoint = this.getCurrentGroundPoint();
+            this.rotate = true;
+        }  
+        console.log("Set Starting Point");
         
     }
 
@@ -141,16 +151,20 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
             if (!this.startingPoint) {
                 return;
             }
-    
-            var current = this.getGroundPosition();
-            
+            var current = this.getCurrentGroundPoint();
+             
             if (!current) {
                 return;
             }
     
             var diff = current.subtract(this.startingPoint);
             
-            GameScene.worldRenderer.ground.position.addInPlace(diff);
+            if(!this.rotate) {
+                this.camera.position.subtractInPlace(diff);
+                current.subtractInPlace(diff);
+            }
+            else 
+                GameScene.worldRenderer.ground.rotate(Axis.Y, 0.1);
     
             this.startingPoint = current;
         }

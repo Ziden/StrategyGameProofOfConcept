@@ -4,6 +4,7 @@ import TileData from "../WorldMap/tile-data"
 import Mountain from "./Tiles/mountain";
 import Forest from './Tiles/forest';
 import Textures from "./textures"
+import Unexplored from "./Tiles/unexplored"
 
 import {CellMaterial } from "@babylonjs/materials"
 import URL from "../index";
@@ -11,14 +12,18 @@ import Randomizer from "./randomizer";
 import bush from "./Tiles/bush";
 import hill from "./Tiles/hill"
 import cityCentre from "./Buildings/centre"
+import UnitRenderer from "./unit-renderer";
+import Unit from "../WorldMap/unit";
 
-enum Materials {
+enum FloorMaterial {
     FOREST = 0, 
     WATER = 1, 
     MOUNTAIN = 2, 
     BUSH = 3,  
     HILL = 4,  
-    NONE = 5    
+    NONE = 5,
+    UNEXPLORED = 6
+
 }
 
 enum Buildings {
@@ -31,22 +36,27 @@ export default class WorldRenderer {
     scene: Scene
     ground: Mesh
     map: WorldMap
-    floors: Record<number, Material> = {}
+    multiMaterial: Record<number, Material> = {}
     textures: Textures
+    unitRenderer: UnitRenderer
+
     static GRASS_COLOR = new Color3(0.38, 0.66, 0.37)
+    static WHITE_COLOR = new Color3(1,1,1)
+    static BLACK_COLOR = new Color3(0,0,0)
 
     constructor(scene) {
         this.scene = scene;
-        this.floors = {};
-
+        this.multiMaterial = {};
+        this.map = new WorldMap();
         this.textures = new Textures(scene);
-
-        this.floors[Materials.NONE] = this._createFloor("None", WorldRenderer.GRASS_COLOR, "grass_top");
-        this.floors[Materials.FOREST] = this._createFloor("Forest",WorldRenderer.GRASS_COLOR, "grass_top");
-        this.floors[Materials.WATER] = this._createFloor("Water", Color3.White(), "wool_colored_blue");
-        this.floors[Materials.MOUNTAIN] = this._createFloor("Mountain", WorldRenderer.GRASS_COLOR, "grass_top");
-        this.floors[Materials.BUSH] = this._createFloor("BUSH", new Color3(0.48, 0.66, 0.37), "grass_top");
-        this.floors[Materials.HILL] = this._createFloor("HILL", WorldRenderer.GRASS_COLOR, "grass_top");
+        this.unitRenderer = new UnitRenderer(this);
+        this.multiMaterial[FloorMaterial.UNEXPLORED] = this._createFloor("Unexplored", WorldRenderer.BLACK_COLOR, "grass_top");
+        this.multiMaterial[FloorMaterial.NONE] = this._createFloor("None", WorldRenderer.GRASS_COLOR, "grass_top");
+        this.multiMaterial[FloorMaterial.FOREST] = this._createFloor("Forest",WorldRenderer.GRASS_COLOR, "grass_top");
+        this.multiMaterial[FloorMaterial.WATER] = this._createFloor("Water", WorldRenderer.WHITE_COLOR, "wool_colored_blue");
+        this.multiMaterial[FloorMaterial.MOUNTAIN] = this._createFloor("Mountain", WorldRenderer.GRASS_COLOR, "grass_top");
+        this.multiMaterial[FloorMaterial.BUSH] = this._createFloor("BUSH", WorldRenderer.GRASS_COLOR, "grass_top");
+        this.multiMaterial[FloorMaterial.HILL] = this._createFloor("HILL", WorldRenderer.GRASS_COLOR, "grass_top");
     }
 
     _createFloor(name:string, color:Color3, texture:string=null) {
@@ -55,20 +65,19 @@ export default class WorldRenderer {
             mat = this.textures.getBlock(texture, color)
         else {
             mat = new StandardMaterial("block", this.scene);
-            mat.diffuseColor = color;
+            mat.dif = color;
         }
-        //mat.diffuseColor = color;
-        //mat.disableLighting = true;
-        //mat.alpha = 0.9999;	
-        //mat.alphaMode=BABYLON.Engine.ALPHA_COMBINE
-        //mat.diffuseTexture.uScale = mat.diffuseTexture.vScale = 3;
-        //mat.computeHighLevel = true;
         mat.freeze();
         return mat;
     }
 
     _decorate(world:WorldMap, x:number, y:number) {
         var tile = world.tiles[x][y];
+
+        if(tile.unexplored) {
+            Unexplored(x, y, this);
+        }
+
         if(tile.hasTileData(TileData.FOREST)) {
             Forest(x, y, this);
         }
@@ -84,32 +93,37 @@ export default class WorldRenderer {
 
     getFloorMaterial(world:WorldMap, x:number, y:number) {
         var tile = world.tiles[x][y];
+
+        if(tile.unexplored) {
+            return FloorMaterial.UNEXPLORED;
+        }
+
         if(tile.hasTileData(TileData.FOREST)) {
         
-            return Materials.FOREST;
+            return FloorMaterial.FOREST;
         }
         if(tile.hasTileData(TileData.MOUNTAIN)) {
-            return Materials.MOUNTAIN;
+            return FloorMaterial.MOUNTAIN;
         }
         if(tile.hasTileData(TileData.HILL)) {
-            return Materials.HILL;
+            return FloorMaterial.HILL;
         }
         
         if(tile.hasTileData(TileData.WATER))
-            return Materials.WATER;
+            return FloorMaterial.WATER;
 
         if(tile.hasTileData(TileData.BUSHES)) {
             bush(x, y, this);
-            return Materials.BUSH;
+            return FloorMaterial.BUSH;
         }
             
-        return Materials.NONE
+        return FloorMaterial.NONE
     }
 
-    render(world: WorldMap) {
+    render() {
+        var world = this.map;
         console.log("Rendering world");
         this.rnd = new Randomizer(world.seed);
-        this.map = world;
         const size = world.tiles.length;
         const groundSize = size;
 
@@ -123,22 +137,20 @@ export default class WorldRenderer {
         }
 
         var mats = Object.keys(Material);
-
         var multimat = new MultiMaterial("multi", this.scene);
         for(var m=0; m < mats.length; m++) {
-            var mat = this.floors[m];
+            var mat = this.multiMaterial[m];
             multimat.subMaterials.push(mat);
         }
            
         var ground = MeshBuilder.CreateTiledGround("Ground", tileOptions, this.scene);
-     
         ground.material = multimat;
+        this.ground = ground;
+        this.ground.freezeWorldMatrix();
+        this.ground.doNotSyncBoundingInfo = true;
         
         var verticesCount = ground.getTotalVertices();
         var tileIndicesLength = ground.getIndices().length / (grid.w * grid.h);
-
-        this.ground = ground;
-
         ground.subMeshes = [];
         var base = 0;
         for (var row = 0; row < grid.h; row++) {
@@ -150,5 +162,6 @@ export default class WorldRenderer {
                 base += tileIndicesLength;
             }
         } 
+        return world;
     }
 }

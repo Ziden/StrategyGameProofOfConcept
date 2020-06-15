@@ -16,7 +16,6 @@ export default class WS {
     event.serialize(stream);
     var bytes = stream.trim();
     console.log("Sending packet len " + bytes.byteLength);
-    console.log(bytes[0]);
     this.socket.send(bytes);
   }
 

@@ -48,7 +48,11 @@ namespace MiniQuest.Generator.Populators
                 {
                     var centreCoords = chunk.Tiles.FindTileWithout(TerrainData.WATER);
                     var tile = chunk.GetTile(centreCoords.Value);
-                    map.Build(p, Building.CITY_CENTRE, tile);
+                    map.Build(p, BuildingID.CITY_CENTRE, tile);
+                    tile.TerrainData = 0;
+
+                    var unit = Unit.CreateNew();
+                    map.Units.SpawnUnit(unit, tile, p);
                     return true;
                 }
             }

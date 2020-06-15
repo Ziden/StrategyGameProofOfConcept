@@ -4,6 +4,8 @@ import ChunkMap from "./chunk-map";
 import forEach2D from "./arrays";
 import Chunk from "./chunk";
 import Direction from "./direction";
+import Unit from "./unit";
+import WorldUnits from "./world-units";
 
 export default class WorldMap {
     
@@ -12,17 +14,17 @@ export default class WorldMap {
     seed: number
     chunkMap: ChunkMap
     tiles: Tile[][]
+    units: WorldUnits
 
     deserialize(reader: GameStream) {
         var version = reader.readByte();
-  
-        WorldMap.CHUNK_SIZE = reader.readUnsignedInt16();
-        this.seed = reader.readUnsignedInt16();
+        WorldMap.CHUNK_SIZE = reader.readUshort();
+        this.seed = reader.readUshort();
         console.log("World Version "+version);
         console.log("Chunk size "+WorldMap.CHUNK_SIZE);
         console.log("SEED: "+this.seed);
-
-        this.chunkMap = new ChunkMap();
+        this.units = new WorldUnits(this);
+        this.chunkMap = new ChunkMap(this);
         this.chunkMap.deserialize(reader);
         this._copyChunkToTileArray();
     }

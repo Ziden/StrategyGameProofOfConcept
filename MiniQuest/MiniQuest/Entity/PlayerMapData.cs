@@ -1,15 +1,18 @@
 ﻿using System.Collections.Generic;
+using MiniQuest.Entity;
 using MiniQuest.Map;
 
 namespace MiniQuest.Net
 {
-    public class PlayerMapData
+    public class MapPlayerData
     {
+        public OutgoingPacketType SendPacketId => OutgoingPacketType.PlayerMapData;
+
         public byte InternalPlayerId;
         public List<Unit> Units = new List<Unit>();
-        public List<Tile> Owned = new List<Tile>();
+        public List<Building> Buildings = new List<Building>();
 
-        public PlayerMapData(byte internalId)
+        public MapPlayerData(byte internalId)
         {
             this.InternalPlayerId = internalId;
         }

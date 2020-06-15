@@ -6,15 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="GameData\Buildings.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="GameData\Buildings.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Utility\" />
-    <Folder Include="Map\" />
-    <Folder Include="Net\" />
     <Folder Include="MapGenerator\" />
-    <Folder Include="Entity\" />
     <Folder Include="Api\" />
     <Folder Include="Net\Events\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="RandomNameGeneratorLibrary" Version="1.2.2" />
     <PackageReference Include="WebApiContrib.Formatting.ProtoBuf" Version="0.9.5" />
+    <PackageReference Include="YamlDotNet" Version="8.1.2" />
   </ItemGroup>
 </Project>

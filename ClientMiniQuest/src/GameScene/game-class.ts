@@ -4,6 +4,7 @@ import Socket from "../Net/socket"
 import WorldPacketListener from "../WorldMap/listener";
 import GameCamera from "./camera"
 import AuthEvent from "../ClientEvents/AuthEvent";
+import Unit from "../WorldMap/unit";
 
 export default class Game {
 
@@ -21,9 +22,21 @@ export default class Game {
         this.camera = new GameCamera(this);
         this.worldRenderer = new WorldRenderer(this.scene)
 
+        this.scene.autoClear = false; // Color buffer
+        this.scene.autoClearDepthAndStencil = false; // Depth and stencil, obviously
+
         this.startWorld();
         this.startNetworking();  
         this.startLoop();  
+    }
+
+    proccessDeltas() {
+        console.log("Processing Deltas");
+        Unit.DeltaFlagged.forEach(unit => {
+            this.worldRenderer.unitRenderer.updateUnitMesh(unit);
+            this.worldRenderer.map.units.updateUnit(unit);
+        });
+        Unit.DeltaFlagged = [];
     }
 
     startNetworking() {

@@ -41,7 +41,7 @@ namespace MiniQuest.Utility
 
         public byte GetNextFree()
         {
-            for (byte i = 0; i <= 255; i++)
+            for (byte i = 1; i <= 255; i++)
             {
                 if (!Used[i])
                 {

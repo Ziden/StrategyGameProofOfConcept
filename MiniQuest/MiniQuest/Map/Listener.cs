@@ -1,6 +1,5 @@
 ﻿using System;
 using MiniQuest.Generator.Populators;
-using MiniQuest.Net;
 using MiniQuest.Net.Events;
 
 namespace MiniQuest.Map
@@ -15,41 +14,30 @@ namespace MiniQuest.Map
             Log.Info("Map Listener Registered");
         }
 
-        private void OnPlayerAuth(PlayerAuthEvent ev)
+        private void OnPlayerAuth(PlayerAuthEvent authEv)
         {
-            Log.Debug("On Player Auth");
-            if(ev.Userid=="debug")
-            {
-                ev.Userid = Guid.NewGuid().ToString();
-            }
+            if(authEv.Token=="debug")
+                authEv.Token = Guid.NewGuid().ToString();
  
-            Guid.TryParse(ev.Userid, out ev.Player.Id);
+            Guid.TryParse(authEv.Token, out authEv.Player.Id);
 
-            if (ev.Player.Id == null)
+            var existingPlayer = map.Players.GetPlayer(authEv.Player.Id);
+            if(existingPlayer != null)
             {
-                ev.Player.Disconnect("Invalid User");
-                return;
-            }
-
-            var existingPlayer = map.Players.GetPlayer(ev.Player.Id);
-            if(existingPlayer == null)
-            {
-                if (map.Players.IsFull())
-                {
-                    Log.Info($"Disconnecting player {ev.Player}");
-                    ev.Player.Disconnect("Map is Full");
-                    return;
-                }
-
-                var internalId = map.Players.AddPlayer(ev.Player);
-                NewbieChunkPopulator.CreateNewPlayer(ev.Player, map);
-
-                Log.Info($"New player {ev.Player.ToString()} joining map");
-                ev.Player.SendPacket(map);
+                existingPlayer.Socket = authEv.Player.Socket;
+                authEv.UserId = existingPlayer.Id;
+                authEv.InternalMapId = existingPlayer.MapData.InternalPlayerId;
+                existingPlayer.SendPacket(authEv);
+                existingPlayer.SendPacket(map);
+                Log.Info($"Player {existingPlayer.ToString()} logged back in");
             } else
             {
-                Log.Info($"Player {ev.Player.ToString()} logged back in");
-                ev.Player.SendPacket(map);
+                map.CreatePlayer(authEv.Player);
+                authEv.UserId = authEv.Player.Id;
+                authEv.InternalMapId = authEv.Player.MapData.InternalPlayerId;
+                authEv.Player.SendPacket(authEv);
+                authEv.Player.SendPacket(map);
+                Log.Info($"New player {authEv.Player.ToString()} created");
             }
         }
     }

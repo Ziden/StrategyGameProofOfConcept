@@ -1,4 +1,5 @@
 
+// simple seeded randomizer
 export default class Randomizer {
     seed:number
     m:number
@@ -9,7 +10,6 @@ export default class Randomizer {
     constructor(seed:number) {
         this.seed = seed;
         this.state = seed;
-
         this.m = 0x80000000; 
         this.a = 1103515245;
         this.c = 12345;
@@ -21,7 +21,6 @@ export default class Randomizer {
     }
 
     nextFloat() {
-        // returns in range [0,1]
         return this.nextInt() / (this.m - 1);
     }
 

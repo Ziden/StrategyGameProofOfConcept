@@ -5,8 +5,18 @@ export default class Objects {
     
     static cache: Record<string, Mesh> = {}
 
+    static plane(text: string, color:Color3, w:number, h:number, renderer:WorldRenderer, textScale:number=1, type=null) {
+        const key = "p"+text+":"+w+":"+h+""+color+""+textScale;
+        if(!(key in this.cache)) {
+            var plane = MeshBuilder.CreatePlane(text, {width:w, height:h,updatable:false}, renderer.scene)
+            plane.material = renderer.textures.getBlock(text, color, textScale, type);
+            this.cache[key] = plane;
+        }
+        return this.cache[key].clone();
+    }
+
     static box(text:string, color:Color3, w:number, h:number, renderer:WorldRenderer, textScale:number=1, type=null) {
-        const key = text+":"+w+":"+h+""+color;
+        const key = text+":"+w+":"+h+""+color+""+textScale;
         if(!(key in this.cache)) {
             var box = MeshBuilder.CreateBox(text, {size: w, height:h }, renderer.scene);
             var mat = renderer.textures.getBlock(text, color, textScale, type);

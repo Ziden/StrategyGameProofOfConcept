@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using MiniQuest.Entity;
+using MiniQuest.Generator.Populators;
 using MiniQuest.Map;
 using MiniQuest.Net;
 using MiniQuest.SpeedMath;
-using MiniQuest.Utility;
 
 namespace MiniQuest
 {
@@ -14,11 +14,14 @@ namespace MiniQuest
         public static int CHUNK_SIZE = 8;
         public static int CHUNK_SIZE_BITSHIFT = CHUNK_SIZE.BitsRequired() - 1;
         public static int TILES_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
-        public static int PLAYERS_CHUNKS = 4;
+        public static int PLAYERS_CHUNKS = 2;
  
         public ushort Seed { get; set; }
         public ChunkMap ChunkGrid { get; set; }
         public WorldPlayers Players { get; set; }
+        public WorldUnits Units { get; set; }
+        public FogOfWar Fog { get; set; }
+
 
         // Cache final tile grid for faster acessing
         public Tile[,] TileGrid { get; set; }
@@ -35,6 +38,8 @@ namespace MiniQuest
             ChunkGrid = new ChunkMap(tilesX/CHUNK_SIZE, tilesY/CHUNK_SIZE);
             Players = new WorldPlayers();
             Players.MaxPlayers = qtdPlayers;
+            Fog = new FogOfWar(this);
+            Units = new WorldUnits(this);
         }
 
         public Tile GetTile((ushort, ushort) pos)
@@ -47,21 +52,41 @@ namespace MiniQuest
             return TileGrid.GetLength(0);
         }
 
-        public void Build(Player player, Building building, Tile t)
+        public void Build(Player player, BuildingID id, Tile t)
         {
-            Log.Debug($"Player {player} building {building} on tile {t}");
-            t.chunk.Buildings.Add(t);
-            t.Building = (byte)building;
+            Log.Debug($"Player {player} building {id} on tile {t}");
+            var building = new Building()
+            {
+                id = id,
+                LineOfSight = 4,
+                x = t.x,
+                y = t.y,
+                Controller = player
+            };
+            t.Chunk.Buildings.Add(building);
+            t.Building = (byte)id;
             t.Owner = Players.GetInternalId(player);
-            player.MapData.Owned.Add(t);
+            player.MapData.Buildings.Add(building);
+            Fog.AddSight(building);
         }
 
-        public void Serialize(GameStream writer)
+        public void CreatePlayer(Player player)
+        {
+            if (this.Players.IsFull())
+                player.Disconnect("Map is Full");
+            else
+            {
+                var internalId = this.Players.AddPlayer(player);
+                NewbieChunkPopulator.CreateNewPlayer(player, this);
+            }        
+        }
+
+        public void WriteTo(GameStream writer, Player player, byte deltas = 0)
         {
             writer.Write(1); //version
             writer.Write((ushort)CHUNK_SIZE);
             writer.Write(Seed);
-            ChunkGrid.Serialize(writer);
+            ChunkGrid.WriteTo(writer, player);
         }
 
     }
