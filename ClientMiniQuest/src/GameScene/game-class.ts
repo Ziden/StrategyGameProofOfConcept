@@ -1,10 +1,11 @@
-import { Engine, HemisphericLight, Scene, Vector3 } from "@babylonjs/core"
+import { Engine, HemisphericLight, Scene, Vector3, Sprite } from "@babylonjs/core"
 import WorldRenderer from "../Render/world-renderer"
 import Socket from "../Net/socket"
 import WorldPacketListener from "../WorldMap/listener";
 import GameCamera from "./camera"
 import AuthEvent from "../ClientEvents/AuthEvent";
 import Unit from "../WorldMap/unit";
+import GameUI from "../UI/game-ui";
 
 export default class Game {
 
@@ -14,6 +15,7 @@ export default class Game {
     public canvas:HTMLCanvasElement
     public camera:GameCamera
     public worldRenderer:WorldRenderer
+    public ui:GameUI
 
     constructor() {
         this.canvas = document.getElementById("view") as HTMLCanvasElement
@@ -21,9 +23,10 @@ export default class Game {
         this.scene = new Scene(this.engine);
         this.camera = new GameCamera(this);
         this.worldRenderer = new WorldRenderer(this.scene)
-
-        this.scene.autoClear = false; // Color buffer
-        this.scene.autoClearDepthAndStencil = false; // Depth and stencil, obviously
+        this.scene.autoClear = false;
+        this.scene.autoClearDepthAndStencil = false; 
+        var scene = this.scene;
+        this.scene.onPointerDown = this.onClick.bind(this);
 
         this.startWorld();
         this.startNetworking();  
@@ -37,6 +40,13 @@ export default class Game {
             this.worldRenderer.map.units.updateUnit(unit);
         });
         Unit.DeltaFlagged = [];
+    }
+
+    onClick(ev:PointerEvent) {
+        var pickResult = this.scene.pickSprite(this.scene.pointerX, this.scene.pointerY);
+        if (pickResult.hit) {
+            console.log("Clicked "+pickResult.pickedSprite.name);
+        }
     }
 
     startNetworking() {

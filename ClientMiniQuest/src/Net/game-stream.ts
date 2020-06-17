@@ -35,13 +35,9 @@ export default class GameStream {
     var streamBytes = new Uint8Array(size);
     var max = size;
     while(size--) {
-      console.log("Index "+(max-size-1));
       streamBytes[max-size-1] = this.readByte();
     }
-    console.log(streamBytes);
-    var str = GameStream.decoder.decode(streamBytes)
-    console.log("Read string "+str+" of "+max+" bytes");
-    return str;
+    return GameStream.decoder.decode(streamBytes);
   }
 
   writeString(s:string) {

@@ -8,9 +8,9 @@ export default class Unit {
 
     x:number
     y:number
-    hat:number
+    sprite:number
     id:Guid
-    internalMapId:number
+    ownerInternalId:number
     name: string
 
     // flags renderer to update the unit
@@ -21,11 +21,11 @@ export default class Unit {
     deserialize(stream:GameStream) {
         this.x = stream.readUshort();
         this.y = stream.readUshort();
-        this.hat = stream.readByte();
+        this.sprite = stream.readByte();
         this.id = stream.readGuid();
-        this.internalMapId = stream.readByte();
+        this.ownerInternalId = stream.readByte();
 
-        if(this.internalMapId==UserData.ClientUserData.internalMapId) {
+        if(this.ownerInternalId==UserData.ClientUserData.internalMapId) {
             this.name = stream.readString();
             console.log("Reading name Name = "+this.name);
         }

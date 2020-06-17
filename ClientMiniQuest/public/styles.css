@@ -2,3 +2,30 @@
 canvas {
     outline: none;
 }
+
+#side-menu {
+	width:10%;
+	height:100%;
+	position:absolute;
+	background-color:red;
+	top:0;
+	left:0;
+}
+
+.unit{
+	position: relative;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+}
+.unit:before{
+	display: block;
+	padding-top: 100%;
+}
+
+.unit-icon {
+	background-color: blue;
+    width: 32px;
+    height: 32px;
+    margin: 0 auto;
+}

@@ -68,9 +68,7 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
         } else if(evt.button == 2) {
             this.startingPoint = this.getCurrentGroundPoint();
             this.rotate = true;
-        }  
-        console.log("Set Starting Point");
-        
+        }   
     }
 
     onPointerMove(evt:MouseEvent) {

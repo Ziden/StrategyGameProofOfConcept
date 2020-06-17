@@ -22,7 +22,6 @@ namespace MiniQuest
         public WorldUnits Units { get; set; }
         public FogOfWar Fog { get; set; }
 
-
         // Cache final tile grid for faster acessing
         public Tile[,] TileGrid { get; set; }
 
