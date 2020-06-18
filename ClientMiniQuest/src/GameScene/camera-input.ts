@@ -11,7 +11,8 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
     private sensibility: number
 
     private startingPoint:Vector3
-    private drag:boolean
+    private currentDragPoint:Vector3
+    public draggingCamera:boolean
     private rotate:boolean
 
     constructor() {
@@ -26,7 +27,7 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
         window.addEventListener("keyup", this._onKeyUp.bind(this), false);
 
         window.addEventListener("pointerdown", this.onPointerDown.bind(this), false);
-        window.addEventListener("pointerup", this.onPointerUp.bind(this), false);
+        //window.addEventListener("pointerup", this.onPointerUp.bind(this), false);
         window.addEventListener("pointermove", this.onPointerMove.bind(this), false);
         window.addEventListener("wheel", this.onMouseWheel.bind(this), false);
         
@@ -52,27 +53,34 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
         return pickInfo
     }
 
-    onPointerUp(evt:MouseEvent) {
-        if (this.startingPoint) {
-            //this.camera.attachControl(canvas, true);
-            this.startingPoint = null;
-            this.drag = false;
-            return;
+    onPointerUp(evt:PointerEvent) {
+        if (this.currentDragPoint) {
+            const totalMoved = this.camera.position.subtract(this.startingPoint);
+            const pixelsMoved = Math.abs(totalMoved.x) + Math.abs(totalMoved.z);
+            this.currentDragPoint = null;
+            this.draggingCamera = false;
+            if(pixelsMoved > 1) {
+                evt.preventDefault();
+                evt.stopPropagation();
+                return true;
+            }
         }
+        return false;;
     }
 
     onPointerDown(evt:MouseEvent) {
         if(evt.button==0) {
-            this.startingPoint = this.getCurrentGroundPoint();
+            this.currentDragPoint = this.getCurrentGroundPoint();
+            this.startingPoint = this.camera.position.clone();
             this.rotate = false;
         } else if(evt.button == 2) {
-            this.startingPoint = this.getCurrentGroundPoint();
+            this.currentDragPoint = this.getCurrentGroundPoint();
             this.rotate = true;
         }   
     }
 
     onPointerMove(evt:MouseEvent) {
-       this.drag = true;
+       this.draggingCamera = true;
     }
 
     getClassName(): string {
@@ -145,38 +153,33 @@ export default class CameraInput implements ICameraInput<FreeCamera> {
      }
 
     checkInputs() { 
-        if(this.drag) {
-            if (!this.startingPoint) {
+        if(this.draggingCamera) {
+            if (!this.currentDragPoint) {
                 return;
             }
-            var current = this.getCurrentGroundPoint();
+            var groundPoint = this.getCurrentGroundPoint();
              
-            if (!current) {
+            if (!groundPoint) {
                 return;
             }
     
-            var diff = current.subtract(this.startingPoint);
-            
+            var diff = groundPoint.subtract(this.currentDragPoint);
+
             if(!this.rotate) {
                 this.camera.position.subtractInPlace(diff);
-                current.subtractInPlace(diff);
+                groundPoint.subtractInPlace(diff);
             }
             else 
                 GameScene.worldRenderer.ground.rotate(Axis.Y, 0.1);
-    
-            this.startingPoint = current;
+
+            this.currentDragPoint = groundPoint;
         }
 
         if (this._onKeyDown) {
             var camera = this.camera;
-            // Keyboard
-            
             for (var index = 0; index < this._keys.length; index++) {
-
               var keyCode = this._keys[index];
-
             }
-
           }
     }
 

@@ -6,6 +6,7 @@ import GameCamera from "./camera"
 import AuthEvent from "../ClientEvents/AuthEvent";
 import Unit from "../WorldMap/unit";
 import GameUI from "../UI/game-ui";
+import ClientEvents from "./commands";
 
 export default class Game {
 
@@ -16,6 +17,7 @@ export default class Game {
     public camera:GameCamera
     public worldRenderer:WorldRenderer
     public ui:GameUI
+    public events:ClientEvents
 
     constructor() {
         this.canvas = document.getElementById("view") as HTMLCanvasElement
@@ -25,12 +27,64 @@ export default class Game {
         this.worldRenderer = new WorldRenderer(this.scene)
         this.scene.autoClear = false;
         this.scene.autoClearDepthAndStencil = false; 
-        var scene = this.scene;
-        this.scene.onPointerDown = this.onClick.bind(this);
+        this.events = new ClientEvents(this);
+        this.ui = new GameUI(this.worldRenderer)
 
+        //var click = () => { setTimeout( , 1)}
+        //this.scene.onPointerDown = click;
+        this.scene.onPointerUp = this.onClick.bind(this);
+        this.scene.onPointerMove = this.onPointerMove.bind(this);
         this.startWorld();
         this.startNetworking();  
         this.startLoop();  
+    }
+
+    onPointerMove(ev:PointerEvent) {
+        var picks = this.scene.pick(this.scene.pointerX, this.scene.pointerY, mesh => mesh == this.worldRenderer.ground);
+        if(picks.hit) {
+            const x = Math.floor(picks.pickedPoint.x-0.5)
+            const z = Math.floor(picks.pickedPoint.z-0.5); 
+            this.ui.onMouseMove(x, z);
+        }
+    }
+
+    getCursorTile() {
+        var picks = this.scene.pick(this.scene.pointerX, this.scene.pointerY, mesh => mesh == this.worldRenderer.ground);
+        const x = Math.floor(picks.pickedPoint.x-0.5)+1;
+        const z = Math.floor(picks.pickedPoint.z-0.5)+1; 
+        return this.worldRenderer.map.tiles[x][z];
+    }
+
+    onClick(evt:PointerEvent) {
+        const controllingCamera = this.camera.input.onPointerUp(evt);
+        if(controllingCamera) {
+            return;
+        }
+
+        var pick = this.scene.pickSprite(this.scene.pointerX, this.scene.pointerY);
+        if (pick.hit) {
+
+            // Selecting Unit
+            if(pick.pickedSprite) {
+                const unitId = pick.pickedSprite.name;
+                var unit = this.worldRenderer.map.units.getUnit(unitId);
+                this.ui.unitDisplay.display(unit);
+            }     
+         
+        } else {
+            if(this.ui.unitDisplay.displaying) {
+                const tile = this.getCursorTile();
+                if(tile)
+                    this.ui.displayUnitOptions(this.ui.unitDisplay.displaying, tile);
+            }
+            //
+            // this.ui.unitDisplay.display(null);     
+        }
+
+        var picks = this.scene.pick(this.scene.pointerX, this.scene.pointerY);
+        if(picks.hit) {
+
+        }
     }
 
     proccessDeltas() {
@@ -40,13 +94,6 @@ export default class Game {
             this.worldRenderer.map.units.updateUnit(unit);
         });
         Unit.DeltaFlagged = [];
-    }
-
-    onClick(ev:PointerEvent) {
-        var pickResult = this.scene.pickSprite(this.scene.pointerX, this.scene.pointerY);
-        if (pickResult.hit) {
-            console.log("Clicked "+pickResult.pickedSprite.name);
-        }
     }
 
     startNetworking() {

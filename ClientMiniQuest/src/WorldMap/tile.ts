@@ -2,6 +2,7 @@ import GameStream from "../Net/game-stream"
 import Unit from "./unit"
 import Chunk from "./chunk"
 import GameScene from "../GameScene/game"
+import TileData from "./tile-data"
 
 export default class Tile {
     
@@ -12,6 +13,12 @@ export default class Tile {
     building: number
     unexplored: boolean = false
     units: Record<number, Unit> = {}
+    x:number
+    y:number
+
+    isPassable() {
+        return (!this.hasTileData(TileData.MOUNTAIN) && !this.hasTileData(TileData.WATER))
+    }
 
     hasTileData(tileData:number) {
         return (this.tiledata & tileData) != 0;

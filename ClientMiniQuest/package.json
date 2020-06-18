@@ -23,7 +23,10 @@
     "@babylonjs/core": "^4.1.0",
     "@babylonjs/gui": "^4.1.0",
     "@babylonjs/materials": "^4.1.0",
+    "babylonjs-gui": "^4.1.0",
+    "easystarjs": "^0.4.3",
     "linq": "^3.2.2",
+    "svelte": "^3.23.2",
     "webpack-merge": "^4.2.2"
   }
 }

@@ -12,7 +12,7 @@ export default class WorldUnits {
         this.map = map;
     }
 
-    getUnit(id:number) {
+    getUnit(id:string) {
         return this.units[id];
     }
 

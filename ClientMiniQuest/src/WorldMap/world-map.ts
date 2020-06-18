@@ -1,19 +1,19 @@
 import Tile from "./tile";
 import GameStream from "../Net/game-stream";
 import ChunkMap from "./chunk-map";
-import forEach2D from "./arrays";
-import Chunk from "./chunk";
 import Direction from "./direction";
-import Unit from "./unit";
 import WorldUnits from "./world-units";
+import { js as PathFinder } from "easystarjs"
 
 export default class WorldMap {
     
     static CHUNK_SIZE: number
 
+    pathfinder: PathFinder 
     seed: number
     chunkMap: ChunkMap
     tiles: Tile[][]
+    pathfindMap: number[][]
     units: WorldUnits
 
     deserialize(reader: GameStream) {
@@ -27,6 +27,16 @@ export default class WorldMap {
         this.chunkMap = new ChunkMap(this);
         this.chunkMap.deserialize(reader);
         this._copyChunkToTileArray();
+        this.pathfinder = new PathFinder();
+        this.pathfinder.setGrid(this.pathfindMap)
+        this.pathfinder.setAcceptableTiles([0]);
+        this.pathfinder.setIterationsPerCalculation(100);
+        this.pathfinderCalculationTick();
+    }
+
+    pathfinderCalculationTick() {
+        this.pathfinder.calculate(); // continue async path calculations
+        setTimeout(this.pathfinderCalculationTick.bind(this), 1000);
     }
 
     getNearbyTiles(x:number, y:number) {
@@ -44,6 +54,7 @@ export default class WorldMap {
 
     _copyChunkToTileArray() {
         this.tiles = []
+        this.pathfindMap = []
         for(var chunkX=0; chunkX < this.chunkMap.chunks.length; chunkX++) {
             for(var chunkY=0; chunkY < this.chunkMap.chunks.length; chunkY++) {
                 var chunk = this.chunkMap.chunks[chunkX][chunkY];
@@ -51,10 +62,16 @@ export default class WorldMap {
                     var tileXX = (chunk.x * WorldMap.CHUNK_SIZE) + tileX;
                     if(this.tiles[tileXX]==undefined) {
                         this.tiles[tileXX] = []
+                        this.pathfindMap[tileXX] = []
                     }
+
                     for(var tileY = 0; tileY < WorldMap.CHUNK_SIZE; tileY++) {
                         var tileYY = (chunk.y * WorldMap.CHUNK_SIZE) + tileY;
                         this.tiles[tileXX][tileYY] = chunk.tiles[tileX][tileY];
+                        var tile = this.tiles[tileXX][tileYY];
+                        tile.x = tileXX;
+                        tile.y = tileYY;
+                        this.pathfindMap[tileXX][tileYY] =  tile.isPassable() ? 0 : 1
                     }
                 }
             }

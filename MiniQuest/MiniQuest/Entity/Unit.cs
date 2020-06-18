@@ -21,12 +21,13 @@ namespace MiniQuest.Map
         private byte Deltas { get; set; }
         public Guid id { get; set; }
         public string Name { get; set; }
-        public byte Hat { get; set; }
+        public byte Sprite { get; set; }
 
         public static Unit CreateNew()
         {
             var unit = new Unit();
             unit.Name = NameGen.GenerateRandomFirstName();
+            unit.Sprite = 1;
             unit.id = Guid.NewGuid();
             return unit;
         }
@@ -35,7 +36,7 @@ namespace MiniQuest.Map
         {
             writer.Write(x);
             writer.Write(y);
-            writer.WriteByte(Hat);
+            writer.WriteByte(Sprite);
             writer.Write(id);
             writer.Write(this.Controller.MapData.InternalPlayerId);
             if(this.Controller==player)

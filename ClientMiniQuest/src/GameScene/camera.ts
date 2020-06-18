@@ -6,6 +6,7 @@ export default class GameCamera  {
 
     private gameScene:Game
     public camera: FreeCamera
+    public input: CameraInput
 
     constructor(gameScene: Game) {
         this.gameScene = gameScene;
@@ -14,9 +15,9 @@ export default class GameCamera  {
         this.camera.attachControl(gameScene.canvas)
         this.camera.rotation.y = 40;
         var inputManager = this.camera.inputs;
-      
+        this.input =new CameraInput();
         inputManager.clear();
-        inputManager.add(new CameraInput());
+        inputManager.add(this.input);
         console.log("Registered input");
     }
     

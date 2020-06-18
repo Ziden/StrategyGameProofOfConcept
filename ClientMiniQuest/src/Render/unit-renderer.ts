@@ -2,6 +2,7 @@ import WorldRenderer from "./world-renderer";
 import Unit from "../WorldMap/unit";
 import Objects from "./objects";
 import { Color3, Mesh, SpriteManager } from "@babylonjs/core";
+import Guid from "../Net/guid";
 
 export default class UnitRenderer {
     
@@ -12,12 +13,16 @@ export default class UnitRenderer {
         this.renderer = renderer;
     }
 
+    getUnitMesh(id: Guid) {
+        return this.units[id.toString()]
+    }
+
     createUnitMesh(unit: Unit) {
         var sprite = this.renderer.textures.createSprite(unit.sprite);
         sprite.position.x = unit.x
         sprite.position.z = unit.y
         sprite.position.y = 1;
-        sprite.playAnimation(0, 1, true, 150, ()=>{});
+        sprite.playAnimation(sprite.cellIndex, sprite.cellIndex+1, true, 150, ()=>{});
         sprite.name = unit.id.toString()
         return sprite;
     }
